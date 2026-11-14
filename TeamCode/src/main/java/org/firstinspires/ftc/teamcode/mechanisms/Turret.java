@@ -182,7 +182,7 @@ public class Turret {
         finalDegrees2 += delta2;
 
         totalServoDegrees = (finalDegrees1 + finalDegrees2) / 2;
-        totalTurretDegrees = totalServoDegrees * 1.76;
+        totalTurretDegrees = totalServoDegrees * (100/176);
 
         lastReadingDegrees1 = currentReadingDegrees1;
         lastReadingDegrees2 = currentReadingDegrees2;

@@ -4,6 +4,7 @@ import static com.pedropathing.ivy.commands.Commands.waitUntil;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.ivy.Command;
+import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -13,6 +14,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.PositionalAim;
 import org.firstinspires.ftc.teamcode.mechanisms.Turret;
 
 public class Commands {
+    public static Pose lastPosition = null;
     public Command flowerPlowerDown(FlowerPlower plower) {
         return Command.build()
                 .setStart(() -> {
@@ -93,5 +95,8 @@ public class Commands {
     }
     public Command waitUntilOnOtherSide(Follower follower, double thresholdY) {
         return waitUntil(() -> Math.abs(follower.pose().y() - thresholdY) <= 2);
+    }
+    public static void setLastPosition(Pose LastPosition) {
+        lastPosition = LastPosition;
     }
 }

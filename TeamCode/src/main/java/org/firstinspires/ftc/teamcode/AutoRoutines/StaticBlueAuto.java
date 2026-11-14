@@ -111,5 +111,6 @@ public class StaticBlueAuto extends OpMode {
         autoAim.loop();
 
         lastPosition = follower.pose();
+        Commands.setLastPosition(lastPosition);
     }
 }

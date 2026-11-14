@@ -7,6 +7,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.AutoRoutines.Commands;
+import org.firstinspires.ftc.teamcode.AutoRoutines.ParkBlue;
 import org.firstinspires.ftc.teamcode.AutoRoutines.StaticBlueAuto;
 import org.firstinspires.ftc.teamcode.AutoRoutines.StaticRedAuto;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
@@ -14,8 +16,8 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 public class PositionalAim {
     static OpMode op;
     static Turret turret;
-    private static Follower follower;
-    private Pose robotPose;
+    public static Follower follower;
+    public Pose robotPose;
     private double botX;
     private double botY;
     private double botAngle;
@@ -32,11 +34,11 @@ public class PositionalAim {
     public double launchVelocity;
     private double currentGoalX;
     private double currentGoalY;
-    private static boolean red;
     private static final PoseFactory poseFactory = PoseFactory.degrees();
     private static Pose start;
+    private static boolean red;
     private static final Pose redStart = poseFactory.of(14.5, 122, 0);
-    private static final Pose blueStart = poseFactory.of(130,20,180);
+    private static final Pose blueStart = poseFactory.of(130, 20, 180);
     private final double goalHeight = 60;
     private final double blueAudienceX = 84.5, blueAudienceY = 55;
     private final double blueGoalX = 84.5, blueGoalY = 85;
@@ -46,16 +48,16 @@ public class PositionalAim {
     public static boolean aimEnabled = false;
     public boolean launchEnabled = false;
     private static boolean inTeleop;
-    double kP = 0.00001;
+    double kP = 0.0001;
     double error;
     double lastError;
-    double kD = 0.00001;
+    double kD = 0.0001;
     double curTime = 0;
     double lastTime = 0;
-    final double aimBoundary = 1;
+    final double aimBoundary = 2.5;
     final double launchMultiplier = 1.00538;
     final double launchOffset = 948.03381;
-    double[] stepSizes = {0.1, 0.01, 0.001, 0.0001, 0.00001};
+    double[] stepSizes = {0.1, 0.01, 0.001, 0.0001};
     int stepIndex = 0;
 
     public static void init(HardwareMap hardwareMap, OpMode OP, boolean InTeleop, boolean Red, Follower Follower, Turret Turret) {
@@ -72,12 +74,8 @@ public class PositionalAim {
 
         if (inTeleop) {
             follower = Constants.create(hardwareMap);
-            if (StaticBlueAuto.lastPosition != null) {
-                if (Red) {
-                    follower.setPose(StaticRedAuto.lastPosition);
-                } else {
-                    follower.setPose(StaticBlueAuto.lastPosition);
-                }
+            if (Commands.lastPosition != null) {
+                follower.setPose(Commands.lastPosition);
             } else {
                 follower.setPose(start);
             }
@@ -113,7 +111,11 @@ public class PositionalAim {
 
         botX = robotPose.x();
         botY = robotPose.y();
-        botAngle = -robotPose.heading() + 90;
+        if (robotPose.y() < 70) {
+            botAngle = robotPose.heading() - 90;
+        } else {
+            botAngle = robotPose.heading() - 270;
+        }
         turretAngle = turret.totalTurretDegrees;
 
         xToGoal = Math.abs(currentGoalX - botX);
@@ -137,7 +139,7 @@ public class PositionalAim {
         elevationToGoal = Math.asin(heightToGoal / rangeToGoal);
 
         if (aimEnabled) {
-            if (bearingToGoal < aimBoundary) {
+            if (Math.abs(bearingToGoal) < aimBoundary) {
                 rotateSpeed = 0;
                 turret.setTurretRotate(rotateSpeed);
 
@@ -162,7 +164,8 @@ public class PositionalAim {
     }
 
     public void autoRotate() {
-        double pTerm = bearingToGoal * kP;
+        error = bearingToGoal;
+        double pTerm = error * kP;
 
         curTime = op.getRuntime();
         double dT = curTime - lastTime;
@@ -204,17 +207,25 @@ public class PositionalAim {
         op.telemetry.addData("kD", kD);
         op.telemetry.addData("kP", kP);
         op.telemetry.addData("Step Size", stepSizes[stepIndex]);
+        op.telemetry.addData("Target Angle", bearingToGoal);
+        op.telemetry.addData("Bot Angle", botAngle);
+        op.telemetry.addData("Turret Angle", turretAngle);
     }
 
     public void resetTurret() {
+        follower.update();
         robotPose = follower.pose();
-        botAngle = -robotPose.heading() + 90;
+        if (red) {
+            botAngle = robotPose.heading() - 90;
+        } else {
+            botAngle = robotPose.heading() - 270;
+        }
         turretAngle = turret.totalTurretDegrees;
 
         botBearingToGoal = 0;
         bearingToGoal = botBearingToGoal + turretAngle + botAngle;
 
-        if (bearingToGoal < 0) {
+        if (bearingToGoal < 2.5) {
             rotateSpeed = 0;
             turret.setTurretRotate(rotateSpeed);
 

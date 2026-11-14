@@ -37,7 +37,16 @@ public class Blue_CompTeleOp extends OpMode {
     public void loop() {
         autoAim.loop();
         //turret.loop();
-        if (!gamepad1.atRest()) {
+        if (gamepad1.left_stick_button) {
+            driveTrainForward = -gamepad1.left_stick_y * .5;
+            driveTrainStrafe = gamepad1.left_stick_x * .5;
+            driveTrainRotate = gamepad1.right_stick_x * .5;
+        } else {
+            driveTrainForward = -gamepad1.left_stick_y;
+            driveTrainStrafe = gamepad1.left_stick_x;
+            driveTrainRotate = gamepad1.right_stick_x;
+        }
+        drive.driveFieldRelative(driveTrainForward, driveTrainStrafe, driveTrainRotate);
             if (gamepad1.right_trigger != 0) {
                 intake.startBothIntake();
             } else if (gamepad1.left_trigger != 0) {
@@ -52,17 +61,6 @@ public class Blue_CompTeleOp extends OpMode {
             } else if (gamepad1.bWasPressed()) {
                 plow.intake();
             }
-            if (gamepad1.left_stick_button) {
-                driveTrainForward = -gamepad1.left_stick_y * .5;
-                driveTrainStrafe = gamepad1.left_stick_x * .5;
-                driveTrainRotate = gamepad1.right_stick_x * .5;
-            } else {
-                driveTrainForward = -gamepad1.left_stick_y;
-                driveTrainStrafe = gamepad1.left_stick_x;
-                driveTrainRotate = gamepad1.right_stick_x;
-            }
-            drive.driveFieldRelative(driveTrainForward, driveTrainStrafe, driveTrainRotate);
-            if (!gamepad2.atRest()) {
                 if (gamepad2.right_trigger + gamepad2.left_trigger > 0) {
                     if (gamepad2.right_trigger != 0) {
                         autoAim.launchEnabled = true;
@@ -88,7 +86,6 @@ public class Blue_CompTeleOp extends OpMode {
                 if (gamepad2.bWasPressed()) {
                     intake.gateClosed();
                 }
-            }
             /*
             if (turretManual = true) {
                 autoAim.aimEnabled = false;
@@ -102,5 +99,4 @@ public class Blue_CompTeleOp extends OpMode {
             telemetry.addData("Shooter Current Velocity:", turret.shooter1.getVelocity());
             telemetry.addData("Turret Angel:", turret.totalTurretDegrees);
         }
-    }
 }

@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.testOpModes;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -8,7 +7,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.mechanisms.PositionalAim;
 import org.firstinspires.ftc.teamcode.mechanisms.Turret;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
-@Disabled
+
 @TeleOp
 public class TestAim extends OpMode {
     PositionalAim aim = new PositionalAim();
@@ -30,6 +29,8 @@ public class TestAim extends OpMode {
     @Override
     public void loop() {
         aim.loop();
+        aim.tuner();
+        turret.loop();
 
         if (gamepad1.dpadUpWasPressed()) {
             aim.aimEnabled = !aim.aimEnabled;
@@ -52,10 +53,13 @@ public class TestAim extends OpMode {
 
         if (gamepad1.right_trigger_pressed) {
             intake.startBothIntake();
+            intake.gateOpen();
         } else if (gamepad1.left_trigger_pressed) {
             intake.reverseBothIntake();
+            intake.gateOpen();
         } else {
             intake.stopIntake();
+            intake.gateClosed();
         }
     }
 }
