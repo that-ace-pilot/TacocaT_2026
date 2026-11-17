@@ -30,7 +30,6 @@ public class TestAim extends OpMode {
     public void loop() {
         aim.loop();
         aim.tuner();
-        turret.loop();
 
         if (gamepad1.dpadUpWasPressed()) {
             aim.aimEnabled = !aim.aimEnabled;

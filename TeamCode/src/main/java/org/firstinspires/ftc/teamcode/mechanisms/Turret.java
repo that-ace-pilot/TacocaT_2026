@@ -27,7 +27,7 @@ public class Turret {
     private static double lastReadingDegrees2 = 0;
     private static double finalDegrees1 = 0;
     private static double finalDegrees2 = 0;
-    private static double totalServoDegrees = 0;
+    static double totalServoDegrees = 0;
     public static double totalTurretDegrees = 0;
     private static boolean firstRead = true;
     public static double velocity;
@@ -61,6 +61,8 @@ public class Turret {
 
         turretTracker1 = hardwareMap.get(AnalogInput.class, "turretTrackerL");
         turretTracker2 = hardwareMap.get(AnalogInput.class, "turretTrackerR");
+
+        firstRead = true;
     }
 
     public void loop() {
@@ -182,7 +184,7 @@ public class Turret {
         finalDegrees2 += delta2;
 
         totalServoDegrees = (finalDegrees1 + finalDegrees2) / 2;
-        totalTurretDegrees = totalServoDegrees * (100/176);
+        totalTurretDegrees = (totalServoDegrees * ((double) 100/176)) - 25;
 
         lastReadingDegrees1 = currentReadingDegrees1;
         lastReadingDegrees2 = currentReadingDegrees2;

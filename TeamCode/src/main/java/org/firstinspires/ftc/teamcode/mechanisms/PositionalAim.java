@@ -48,14 +48,14 @@ public class PositionalAim {
     public static boolean aimEnabled = false;
     public boolean launchEnabled = false;
     private static boolean inTeleop;
-    double kP = 0.0001;
+    double kP = 0.0250;
     double error;
     double lastError;
-    double kD = 0.0001;
+    double kD = 0.0015;
     double curTime = 0;
     double lastTime = 0;
-    final double aimBoundary = 2.5;
-    final double launchMultiplier = 1.00538;
+    final double aimBoundary = 1;
+    final double launchMultiplier = 1.00541;
     final double launchOffset = 948.03381;
     double[] stepSizes = {0.1, 0.01, 0.001, 0.0001};
     int stepIndex = 0;
@@ -88,6 +88,7 @@ public class PositionalAim {
     }
 
     public void loop() {
+        turret.loop();
         follower.update();
         robotPose = follower.pose();
 
@@ -112,11 +113,15 @@ public class PositionalAim {
         botX = robotPose.x();
         botY = robotPose.y();
         if (robotPose.y() < 70) {
-            botAngle = robotPose.heading() - 90;
+            botAngle = Math.toDegrees(robotPose.heading()) - 90;
         } else {
-            botAngle = robotPose.heading() - 270;
+            botAngle = Math.toDegrees(robotPose.heading()) - 270;
         }
-        turretAngle = turret.totalTurretDegrees;
+        if (botAngle >= -270 && botAngle <= -180) {
+                botAngle = 180 - Math.abs(botAngle + 180);
+        }
+        botAngle = -botAngle;
+        turretAngle = -turret.totalTurretDegrees;
 
         xToGoal = Math.abs(currentGoalX - botX);
         yToGoal = Math.abs(currentGoalY - botY);
@@ -125,7 +130,7 @@ public class PositionalAim {
         lateralRange = Math.sqrt(Math.pow(yToGoal, 2) + Math.pow(xToGoal, 2));
         rangeToGoal = Math.sqrt(Math.pow(lateralRange, 2) + Math.pow(heightToGoal, 2));
 
-        botBearingToGoal = Math.asin(xToGoal / lateralRange);
+        botBearingToGoal = Math.toDegrees(Math.atan(xToGoal / yToGoal));
         if (botX < currentGoalX) {
             if (!red) {
                 botBearingToGoal = -botBearingToGoal;
@@ -210,6 +215,7 @@ public class PositionalAim {
         op.telemetry.addData("Target Angle", bearingToGoal);
         op.telemetry.addData("Bot Angle", botAngle);
         op.telemetry.addData("Turret Angle", turretAngle);
+        op.telemetry.addData("Goal Angle", botBearingToGoal);
     }
 
     public void resetTurret() {
@@ -234,5 +240,9 @@ public class PositionalAim {
         } else {
             autoRotate();
         }
+    }
+
+    public void reset() {
+        follower.setPose(start);
     }
 }

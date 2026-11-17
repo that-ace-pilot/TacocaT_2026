@@ -32,7 +32,7 @@ public class StaticRedAuto extends OpMode {
     private final PoseFactory poseFactory = PoseFactory.degrees();
     private final Pose start = poseFactory.of(57.5, 8, 90);
     private final Pose Flower1 = poseFactory.of(20, 48.5, 180);
-    private final Pose F1Clear = poseFactory.of(12.5, 48.5, 180);
+    private final Pose F1Clear = poseFactory.of(12, 48.5, 180);
     private final Pose shoot = poseFactory.of(57.5, 126, 270);
     private final Pose Flower2 = poseFactory.of(47.5, 120, 90);
     private final Pose F2Clear = poseFactory.of(47.5, 127.5, 90);
