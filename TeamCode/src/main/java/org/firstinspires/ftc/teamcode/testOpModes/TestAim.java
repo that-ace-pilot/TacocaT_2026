@@ -18,7 +18,7 @@ public class TestAim extends OpMode {
     public void init() {
         intake.init(hardwareMap);
         turret.init(hardwareMap);
-        aim.init(hardwareMap, this, true, true, null, turret);
+        aim.init(hardwareMap, this, true, false, null, turret);
     }
 
     @Override

@@ -29,14 +29,15 @@ public class Turret {
     private static double finalDegrees2 = 0;
     static double totalServoDegrees = 0;
     public static double totalTurretDegrees = 0;
-    private static boolean firstRead = true;
+    private static boolean firstRead = true, secondRead = false;
     public static double velocity;
     public static double currentVelocity;
     public static double maxVelocity = 0;
+    public static double turretOffset;
     public static double predictedP, predictedI, predictedD, predictedF;
 
     // ---- PIDF Variables to optimize shooting and reduce oscillations, overshoot, undershoot, etc ---- //
-    public static double proportional = 200;
+    public static double proportional = 300;
     public static double integral = 0.1251065;
     public static double derivative = 0;
     public static double feedForward = 12.5065;
@@ -63,6 +64,8 @@ public class Turret {
         turretTracker2 = hardwareMap.get(AnalogInput.class, "turretTrackerR");
 
         firstRead = true;
+        secondRead = false;
+        turretOffset = 0;
     }
 
     public void loop() {
@@ -150,6 +153,11 @@ public class Turret {
         shooter2.setVelocity(Velocity);
     }
 
+    public static void setShooterPower(double power) {
+        shooter1.setPower(power);
+        shooter2.setPower(power);
+    }
+
     public static void trackTurretAngle() {
         voltage1 = turretTracker1.getVoltage();
         voltage2 = turretTracker2.getVoltage();
@@ -163,7 +171,6 @@ public class Turret {
             finalDegrees1 = currentReadingDegrees1;
             lastReadingDegrees2 = currentReadingDegrees2;
             finalDegrees2 = currentReadingDegrees2;
-            firstRead = false;
         }
         //🚀detect rollover if the change in servo position is greater than the 180 degree threshold
         double delta1 = currentReadingDegrees1 - lastReadingDegrees1;
@@ -184,9 +191,23 @@ public class Turret {
         finalDegrees2 += delta2;
 
         totalServoDegrees = (finalDegrees1 + finalDegrees2) / 2;
-        totalTurretDegrees = (totalServoDegrees * ((double) 100/176)) - 25;
+        totalTurretDegrees = (totalServoDegrees * ((double) 100/176)) + turretOffset;
+
+        if (secondRead) {
+            turretOffset = -totalTurretDegrees;
+            secondRead = false;
+        }
+
+        if (firstRead) {
+            firstRead = false;
+            secondRead = true;
+        }
 
         lastReadingDegrees1 = currentReadingDegrees1;
         lastReadingDegrees2 = currentReadingDegrees2;
+    }
+
+    public void resetZero() {
+        turretOffset = -totalTurretDegrees;
     }
 }

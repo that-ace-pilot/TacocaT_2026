@@ -23,7 +23,7 @@ public class PositionalAim {
     private double botAngle;
     private double turretAngle;
     private double botBearingToGoal;
-    private double bearingToGoal;
+    public double bearingToGoal;
     private double elevationToGoal;
     public double rangeToGoal;
     private double lateralRange;
@@ -51,12 +51,12 @@ public class PositionalAim {
     double kP = 0.0250;
     double error;
     double lastError;
-    double kD = 0.0015;
+    double kD = 0.0010;
     double curTime = 0;
     double lastTime = 0;
-    final double aimBoundary = 1;
+    final double aimBoundary = 0.5;
     final double launchMultiplier = 1.00541;
-    final double launchOffset = 948.03381;
+    final double launchOffset = 958.03381;
     double[] stepSizes = {0.1, 0.01, 0.001, 0.0001};
     int stepIndex = 0;
 
@@ -131,6 +131,15 @@ public class PositionalAim {
         rangeToGoal = Math.sqrt(Math.pow(lateralRange, 2) + Math.pow(heightToGoal, 2));
 
         botBearingToGoal = Math.toDegrees(Math.atan(xToGoal / yToGoal));
+        if (botY > 70) {
+            if (!red) {
+                botBearingToGoal = -botBearingToGoal;
+            }
+        } else {
+            if (red) {
+                botBearingToGoal = -botBearingToGoal;
+            }
+        }
         if (botX < currentGoalX) {
             if (!red) {
                 botBearingToGoal = -botBearingToGoal;
